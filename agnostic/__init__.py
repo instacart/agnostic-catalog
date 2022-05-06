@@ -78,12 +78,6 @@ def create_backend(db_type, host, port, user, password, database, schema, privat
     '''
 
     if db_type == 'mysql':
-        if schema is not None:
-            raise RuntimeError('MySQL does not support schemas.')
-        if private_key is not None:
-            raise RuntimeError('MySQL does not support private keys.')
-
-
         try:
             from agnostic.mysql import MysqlBackend
         except ImportError as ie:
@@ -95,9 +89,6 @@ def create_backend(db_type, host, port, user, password, database, schema, privat
         return MysqlBackend(host, port, user, password, database, schema)
 
     elif db_type == 'postgres':
-        if private_key is not None:
-            raise RuntimeError('Postgres does not support private keys.')
-
         try:
             from agnostic.postgres import PostgresBackend
         except ImportError as ie:
