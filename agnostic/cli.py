@@ -403,6 +403,34 @@ def restore(config, schemafile):
 
 
 @click.command()
+@click.argument('migration_name')
+@pass_config
+def fix(config, migration_name):
+    '''
+    Delete a failed migration from the agnostic db.
+    '''
+
+    click.echo('Deleting {} from catalog.agnostic_migrations'.format(migration_name))
+
+    try:
+        with _get_db_cursor(config) as (db, cursor):
+            schema = ''
+            if config.backend._schema:
+                schema = config.backend._schema + '.'
+            delete_sql = '''
+                DELETE
+                FROM {schema}agnostic_migrations
+                WHERE
+                    name = '{migration_name}' 
+                    and status != 'succeeded';'''.format(schema=schema, migration_name=migration_name)
+            _run_sql(cursor, delete_sql)
+    except Exception as e:
+        raise click.ClickException('Not able to delete failed migration: {}'.format(e))
+
+    click.secho('Migration deleted "{}".'.format(migration_name), fg='green')
+
+
+@click.command()
 @click.option(
     '-y', '--yes',
     is_flag=True,
@@ -512,6 +540,7 @@ main.add_command(restore)
 main.add_command(list_)
 main.add_command(test)
 main.add_command(migrate)
+main.add_command(fix)
 
 
 @contextmanager
