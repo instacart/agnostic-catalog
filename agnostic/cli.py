@@ -403,6 +403,7 @@ def restore(config, schemafile):
 
 
 @click.command()
+@click.argument('migration_name')
 @pass_config
 def fix(config, migration_name):
     '''
