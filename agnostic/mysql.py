@@ -137,3 +137,6 @@ class MysqlBackend(AbstractBackend):
         )
 
         return process
+
+    def fix_db(self, migration_name):
+        raise("Not implemented for mysql")
