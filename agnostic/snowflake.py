@@ -51,6 +51,3 @@ class SnowflakeBackend(AbstractBackend):
 
     def snapshot_db(self, snapshot_file):
         raise('Snowflake cannot snapshot DB')
-
-    def fix_db(self, migration_name):
-        return
