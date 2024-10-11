@@ -412,7 +412,17 @@ def fix(config, migration_name):
     click.echo('Deleting {} from catalog.agnostic_migrations'.format(migration_name))
 
     try:
-        _wait_for(config.backend.fix_db(migration_name))
+        with _get_db_cursor(config) as (db, cursor):
+            schema = ''
+            if config.backend._schema:
+                schema = config.backend._schema + '.'
+            delete_sql = '''
+                DELETE
+                FROM {schema}agnostic_migrations
+                WHERE
+                    name = '{migration_name}' 
+                    and status != 'succeeded';'''.format(schema=schema, migration_name=migration_name)
+            _run_sql(cursor, delete_sql)
     except Exception as e:
         raise click.ClickException('Not able to delete failed migration: {}'.format(e))
 

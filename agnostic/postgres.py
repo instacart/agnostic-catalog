@@ -213,6 +213,4 @@ class PostgresBackend(AbstractBackend):
                     schemas.append(schema)
 
         return schemas
-
-    def fix_db(self, migration_name):
-        raise("Not implemented for psql")
+    
