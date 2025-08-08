@@ -672,12 +672,17 @@ def _run_sql(cursor, sql):
 
     for statement in sqlparse.parse(sql):
         statement_string = str(statement)
-        if statement.get_type() != 'UNKNOWN' or _is_dcl_statement(statement_string):
+        if statement.get_type() != 'UNKNOWN' or _is_dcl_statement(statement_string) or _is_warehouse_statement(statement_string):
             cursor.execute(statement_string)
 
 def _is_dcl_statement(sql):
     clean_sql = sql.lower().lstrip()
     return clean_sql.startswith('grant ') or clean_sql.startswith('revoke ')
+
+
+def _is_warehouse_statement(sql):
+    clean_sql = sql.lower().lstrip()
+    return clean_sql.startswith('use warehouse ')
 
 
 def _wait_for(process):
