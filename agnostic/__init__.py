@@ -72,7 +72,7 @@ class Migration():
         )
 
 
-def create_backend(db_type, host, port, user, password, database, schema, private_key=None):
+def create_backend(db_type, host, port, user, password, database, schema, private_key=None, warehouse=None):
     '''
     Return a new backend instance.
     '''
@@ -108,7 +108,7 @@ def create_backend(db_type, host, port, user, password, database, schema, privat
                 raise RuntimeError(msg)
             else:
                 raise
-        return SnowflakeBackend(host, port, user, password, database, schema, private_key)
+        return SnowflakeBackend(host, port, user, password, database, schema, private_key, warehouse)
 
     else:
         raise ValueError('Invalid database type: "{}"'.format(db_type))
@@ -128,7 +128,7 @@ class AbstractBackend(metaclass=ABCMeta):
 
         return location
 
-    def __init__(self, host, port, user, password, database, schema, private_key=None):
+    def __init__(self, host, port, user, password, database, schema, private_key=None, warehouse=None):
         ''' Constructor. '''
 
         self._host = host
@@ -138,6 +138,7 @@ class AbstractBackend(metaclass=ABCMeta):
         self._database = database
         self._schema = schema
         self._private_key = private_key
+        self._warehouse = warehouse
 
     @abstractmethod
     def backup_db(self, backup_file):

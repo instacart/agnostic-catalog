@@ -98,6 +98,14 @@ pass_config = click.make_pass_decorator(Config, ensure=True)
     help='Snowflake private_key, as an alternative way of authentication. Either password or this key must be provided'
 )
 @click.option(
+    '-w', '--warehouse',
+    envvar='SNOWFLAKE_WAREHOUSE',
+    metavar='<warehouse>',
+    required=False,
+    help='Snowflake warehouse to use for the session. If omitted, the '
+         'connected user\'s DEFAULT_WAREHOUSE is used.'
+)
+@click.option(
     '-D', '--debug',
     is_flag=True,
     help='Display stack traces when exceptions occur.'
@@ -105,7 +113,7 @@ pass_config = click.make_pass_decorator(Config, ensure=True)
 @click.version_option()
 @pass_config
 def main(config, db_type, host, port, user, password, database, schema,
-         migrations_dir, private_key, debug):
+         migrations_dir, private_key, warehouse, debug):
     ''' Agnostic database migrations: upgrade schemas, save your sanity. '''
 
     config.debug = debug
@@ -113,7 +121,7 @@ def main(config, db_type, host, port, user, password, database, schema,
 
     try:
         config.backend = create_backend(db_type, host, port, user, password,
-                                        database, schema, private_key)
+                                        database, schema, private_key, warehouse)
     except RuntimeError as re:
         raise click.ClickException(str(re))
 

@@ -29,6 +29,8 @@ class SnowflakeBackend(AbstractBackend):
             connect_args['password'] = self._password
         if self._port is not None:
             connect_args['port'] = self._port
+        if self._warehouse is not None:
+            connect_args['warehouse'] = self._warehouse
 
         return snowflake.connector.connect(**connect_args)
 
