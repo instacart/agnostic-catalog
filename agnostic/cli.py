@@ -680,17 +680,35 @@ def _run_sql(cursor, sql):
 
     for statement in sqlparse.parse(sql):
         statement_string = str(statement)
-        if statement.get_type() != 'UNKNOWN' or _is_dcl_statement(statement_string) or _is_warehouse_statement(statement_string):
+        if statement.get_type() != 'UNKNOWN' or _is_dcl_statement(statement) or _is_warehouse_statement(statement):
             cursor.execute(statement_string)
 
-def _is_dcl_statement(sql):
-    clean_sql = sql.lower().lstrip()
-    return clean_sql.startswith('grant ') or clean_sql.startswith('revoke ')
+
+def _leading_words(statement, count):
+    '''
+    Return the first ``count`` tokens of ``statement``, upper-cased, skipping
+    comments and whitespace.
+
+    sqlparse attaches comments to the statement that follows them, so the
+    statement's raw text can start with a comment instead of the keyword.
+    '''
+
+    words = []
+    for token in statement.flatten():
+        if token.is_whitespace or token.ttype in sqlparse.tokens.Comment:
+            continue
+        words.append(token.value.upper())
+        if len(words) == count:
+            break
+    return words
 
 
-def _is_warehouse_statement(sql):
-    clean_sql = sql.lower().lstrip()
-    return clean_sql.startswith('use warehouse ')
+def _is_dcl_statement(statement):
+    return _leading_words(statement, 1) in (['GRANT'], ['REVOKE'])
+
+
+def _is_warehouse_statement(statement):
+    return _leading_words(statement, 2) == ['USE', 'WAREHOUSE']
 
 
 def _wait_for(process):
